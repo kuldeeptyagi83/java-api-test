@@ -8,17 +8,51 @@ group = 'com.example'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
-    repositories {
+repositories {
         mavenCentral()
+}
+
+ext {
+    karateVersion = '1.5.1'
+}
+
+sourceSets {
+    test {
+        java {
+            // Excluding UIRunner files as these require the javafx libraries
+            // which are not shipped with OpenJDK. These UIRunner classes are
+            // classes that allow developers to run/debug karate tests via a UI
+            // and as such are not required for headless runs on jenkins server
+            // but can run happily via IDE of the developer without needed to be
+            // compiled by gradle.
+            srcDir file('src/test/java')
+            exclude '**/*UiRunner*.java'
+        }
+        resources {
+            // Using recommended karate project layout where karate feature files
+            // and associated javascript resources sit in same /test/java folders
+            // as their java counterparts.
+            srcDir file('src/test/java')
+            exclude '**/*.java'
+        }
     }
+}
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'com.h2database:h2:2.1.214'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "io.karatelabs:karate-core:${karateVersion}"
 }
 
 test {
     useJUnitPlatform()
+    // pull karate options into the runtime
+    systemProperty "karate.options", System.properties.getProperty("karate.options")
+    // pull karate env into the runtime
+    systemProperty "karate.env", System.properties.getProperty("karate.env")
+    // ensure tests are always run
+    outputs.upToDateWhen { false }
 }
