@@ -1,0 +1,20 @@
+# Stage 1: Gradle Build
+FROM gradle:7.6-jdk17 AS build
+
+WORKDIR /app
+
+COPY . .
+
+RUN ./gradlew clean bootJar --no-daemon
+
+# Stage 2: Final image
+FROM openjdk:17.0.1-jdk-slim
+
+EXPOSE 8080
+
+WORKDIR /app
+
+COPY --from=build /app/build/libs/*.jar /app/spring-boot-application.jar
+RUN pwd && ls -la
+
+ENTRYPOINT [ "java", "-jar", "spring-boot-application.jar" ]
