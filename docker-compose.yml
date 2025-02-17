@@ -1,23 +1,28 @@
 version: '3.9'
 
 services:
-  java_app:
-    container_name: java_app
-    image: kdp/java_spring_app:1.0.0
+  java-app:
+    container_name: java-app
+    image: kdp/java-spring-app:1.0.0
     build:
       context: .
       dockerfile: DockerfileGradle # DockerfileGradle  # or DockerfileMaven
     ports:
       - 8080:8080
     environment:
-      - DATABASE_URL=jdbc:postgresql://pg_db:5432/postgres
+      - DATABASE_URL=jdbc:postgresql://pg-db:5432/postgres
       - DATABASE_USERNAME=postgres
       - DATABASE_PASSWORD=postgres
     depends_on:
-      - pg_db
+      - pg-db
+    healthcheck:
+      test: [ "CMD-SHELL", "curl  http://localhost:8080/api/health || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
       
-  pg_db:
-    container_name: pg_db
+  pg-db:
+    container_name: pg-db
     image: postgres:12
     ports:
 
@@ -28,6 +33,19 @@ services:
       POSTGRES_DB: postgres
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  karate:
+    container_name: karate
+    image: karate
+    build:
+      context: .
+      dockerfile: DockerfileKarate
+    volumes:
+      - ./karate-reports:/target/karate-reports
+    depends_on:
+      java-app:
+        condition: service_healthy
+    command: ["java", "-jar", "karate.jar", "src/test/java/user/user.feature"]
 
 volumes:
   pgdata: {}
