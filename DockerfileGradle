@@ -3,8 +3,19 @@ FROM gradle:7.6-jdk17 AS build
 
 WORKDIR /app
 
-COPY . .
+#COPY . .   #for local only (not for github actions)
 
+# For CI build
+# Copy the Gradle wrapper and the build files
+COPY gradlew .
+COPY gradle/ gradle/
+COPY build.gradle .
+# Copy the rest of the application code
+COPY src/ src/
+# Make the Gradle wrapper executable
+RUN chmod +x gradlew
+
+# Build the application
 RUN ./gradlew clean bootJar --no-daemon
 
 # Stage 2: Final image

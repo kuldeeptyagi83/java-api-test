@@ -45,7 +45,8 @@ services:
     depends_on:
       java-app:
         condition: service_healthy
-    command: ["java", "-jar", "karate.jar", "src/test/java/user/user.feature"]
+    command: ["java", "-jar", "karate.jar", "src/test/java"]  # run all tests in java folder
+#    command: ["java", "-jar", "karate.jar", "src/test/java/user/user.feature"]  # Run particular feature file
 
 volumes:
   pgdata: {}
