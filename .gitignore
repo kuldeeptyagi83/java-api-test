@@ -36,3 +36,4 @@ build/
 #### Custom ####
 karate.jar
 karate-reports/
+.gradle
