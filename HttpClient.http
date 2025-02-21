@@ -29,6 +29,18 @@ Content-Type: application/json
 ###
 GET http://localhost:8080/api/health
 
+###
+# From spring app calling external api served by wiremock
+GET http://localhost:8080/client/users
+
+###
+# From local to wiremock directly
+GET http://localhost:8089/client/users/123
+
+###
+# From local to wiremock directly
+GET http://localhost:8089/__admin/mappings
+
 
 
 

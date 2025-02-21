@@ -1,0 +1,20 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/client/users/([0-9]+)"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": [
+      {
+        "name": "John Doe",
+        "email": "john.doe@example.com",
+        "id": "{{request.path.[2]}}"
+      }
+    ]
+  }
+}
+

@@ -34,6 +34,16 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
+  wiremock:
+    container_name: wiremock
+    image: wiremock/wiremock:2.33.2
+    ports:
+      - 8089:8080
+    command: [ '--global-response-templating', '--verbose', '--enable-stub-cors' ]
+    volumes:
+      - ./wiremock/mappings:/home/wiremock/mappings
+      - ./wiremock/__files:/home/wiremock/__files
+
   karate:
     container_name: karate
     image: karate
