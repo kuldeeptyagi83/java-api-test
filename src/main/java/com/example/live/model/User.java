@@ -1,4 +1,4 @@
-package com.example.live.user;
+package com.example.live.model;
 
 import jakarta.persistence.*;
 

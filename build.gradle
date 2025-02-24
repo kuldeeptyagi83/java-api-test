@@ -46,6 +46,7 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation "io.karatelabs:karate-core:${karateVersion}"
+    testImplementation 'org.mockito:mockito-core'
 }
 
 test {

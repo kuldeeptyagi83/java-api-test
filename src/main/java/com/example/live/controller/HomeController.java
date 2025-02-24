@@ -1,4 +1,4 @@
-package com.example.live.user;
+package com.example.live.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;

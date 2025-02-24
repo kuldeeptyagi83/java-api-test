@@ -1,5 +1,6 @@
-package com.example.live.user;
+package com.example.live.repository;
 
+import com.example.live.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
