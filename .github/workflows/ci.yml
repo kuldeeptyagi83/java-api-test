@@ -40,9 +40,16 @@ jobs:
         run: |
           docker-compose up --build --abort-on-container-exit
 
-      - name: Archive test reports
+      - name: Archive Karate test reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: karate-reports
           path: karate-reports/
+
+      - name: Archive JUnit HTML test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: junit-html-reports
+          path: build/reports/tests/test/

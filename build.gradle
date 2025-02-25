@@ -51,6 +51,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+//    enabling html reports as well for gradle tests
+    reports {
+        junitXml.required.set(true)
+        html.required.set(true)
+    }
     // Exclude Karate test runner
     exclude '**/user/TestRunParallel.class'
     // pull karate options into the runtime
