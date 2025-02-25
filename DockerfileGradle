@@ -15,7 +15,7 @@ COPY src/ src/
 RUN chmod +x gradlew
 
 # Build the application
-RUN ./gradlew clean bootJar --no-daemon
+RUN ./gradlew clean test bootJar --no-daemon
 
 # Stage 2: Final image
 FROM openjdk:17.0.1-jdk-slim

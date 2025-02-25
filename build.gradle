@@ -51,6 +51,8 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // Exclude Karate test runner
+    exclude '**/user/TestRunParallel.class'
     // pull karate options into the runtime
     systemProperty "karate.options", System.properties.getProperty("karate.options")
     // pull karate env into the runtime
