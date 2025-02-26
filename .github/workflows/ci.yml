@@ -11,39 +11,41 @@ on:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+#      - name: Set up Docker Buildx
+#        uses: docker/setup-buildx-action@v2
 
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-          docker-compose --version
-
-      - name: Create cache , junit html test directories
-        run: mkdir -p /tmp/.buildx-cache /tmp/junit-html-reports
-
-      - name: Cache Docker layers
-        uses: actions/cache@v3
+      - name: Run docker compose
+        uses: hoverkraft-tech/compose-action@v2.0.1
         with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-buildx-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-buildx-
+          compose-file: "./docker-compose.yml"
 
-      - name: Build and run Docker Compose
-        run: |
-          docker-compose up -d --build
-        env:
-         PWD: ${{ github.workspace }}  #set the PWD environment variable to the GitHub workspace directory
+#      - name: junit html test directoriy
+#        run: mkdir -p /tmp/junit-html-reports
+#
+#      - name: Cache Docker layers
+#        uses: actions/cache@v3
+#        with:
+#          path: /tmp/.buildx-cache
+#          key: ${{ runner.os }}-buildx-${{ github.sha }}
+#          restore-keys: |
+#            ${{ runner.os }}-buildx-
+#
+#      - name: Build and run Docker Compose
+#        run: |
+#          docker-compose up -d --build
+#        env:
+#         PWD: ${{ github.workspace }}  #set the PWD environment variable to the GitHub workspace directory
 
       - name: Collect and print logs for all Docker containers
-        run: docker-compose logs
+        run: docker compose logs
 
       - name: Copy the junit html reports from the container to the host
         run: docker cp java-app:/app/build/reports/tests/test-internal /tmp/junit-html-reports
