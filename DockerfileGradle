@@ -1,6 +1,9 @@
 # Stage 1: Gradle Build
 FROM gradle:7.6-jdk17 AS build
 
+# Install curl and update CA certificates
+RUN apt-get update && apt-get install -y curl ca-certificates
+
 WORKDIR /app
 
 # Copy the Gradle wrapper and the build files
@@ -14,20 +17,26 @@ COPY src/ src/
 # Make the Gradle wrapper executable
 RUN chmod +x gradlew
 
-# Build the application
-RUN ./gradlew clean test bootJar --no-daemon
+# Compiles the source code, including the test code and creates executable JAR file for your Spring Boot application
+RUN ./gradlew clean build  bootJar --no-daemon
 
 # Stage 2: Final image
 FROM openjdk:17.0.1-jdk-slim
 
-# Install curl
-RUN apt-get update && apt-get install -y curl
+# Install curl and update CA certificates
+RUN apt-get update && apt-get install -y curl ca-certificates
 
 EXPOSE 8080
 
 WORKDIR /app
 
-COPY --from=build /app/build/libs/*.jar /app/spring-boot-application.jar
+# Copy the built JAR file from the Gradle build stage
+COPY --from=build /app/build/libs/*SNAPSHOT.jar /app/spring-boot-application.jar
+
+# Copy the test reports
+COPY --from=build /app/build/reports/tests/test /app/build/reports/tests/test-internal
+
+# List all files and directories
 RUN pwd && ls -la
 
 ENTRYPOINT [ "java", "-jar", "spring-boot-application.jar" ]

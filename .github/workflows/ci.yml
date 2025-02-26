@@ -25,8 +25,8 @@ jobs:
           sudo chmod +x /usr/local/bin/docker-compose
           docker-compose --version
 
-      - name: Create cache directory
-        run: mkdir -p /tmp/.buildx-cache
+      - name: Create cache , junit html test directories
+        run: mkdir -p /tmp/.buildx-cache /tmp/junit-html-reports
 
       - name: Cache Docker layers
         uses: actions/cache@v3
@@ -38,7 +38,27 @@ jobs:
 
       - name: Build and run Docker Compose
         run: |
-          docker-compose up --build --abort-on-container-exit
+          docker-compose up -d --build
+        env:
+         PWD: ${{ github.workspace }}  #set the PWD environment variable to the GitHub workspace directory
+
+      - name: Collect and print logs for all Docker containers
+        run: docker-compose logs
+
+      - name: Copy the junit html reports from the container to the host
+        run: docker cp java-app:/app/build/reports/tests/test-internal /tmp/junit-html-reports
+
+      - name: Check karate-reports directory and print contents # For debugging purposes
+        run: |
+          if [ -d "./karate-reports" ]; then
+            echo "karate-reports directory exists. Contents:"; ls -la ./karate-reports
+            echo "workspace  directory : $PWD"
+            echo "Absolute path of karate-reports directory:"; realpath ./karate-reports
+          else
+            echo "karate-reports directory does not exist."
+            echo "workspace  directory: $PWD"
+            echo "Absolute path of karate-reports directory:"; realpath ./karate-reports
+          fi
 
       - name: Archive Karate test reports
         if: always()
@@ -52,4 +72,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: junit-html-reports
-          path: build/reports/tests/test/
+          path: /tmp/junit-html-reports/

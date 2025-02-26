@@ -19,4 +19,8 @@ docker-compose up
 
 ```
 
+```angular2html
+To avoid syncing data from the host directory to the container directory when using Docker volume mapping, you can use named volumes instead of bind mounts. Named volumes are managed by Docker and do not sync with the host directory, thus preserving the container's directory content.
+```
+
 

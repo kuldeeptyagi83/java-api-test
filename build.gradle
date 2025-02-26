@@ -1,5 +1,5 @@
 plugins {
-    id 'org.springframework.boot' version '3.3.1'
+    id 'org.springframework.boot' version '3.1.1'
     id 'io.spring.dependency-management' version '1.1.0'
     id 'java'
 }
@@ -17,25 +17,20 @@ ext {
 }
 
 sourceSets {
-    test {
+    karate {
         java {
-            // Excluding UIRunner files as these require the javafx libraries
-            // which are not shipped with OpenJDK. These UIRunner classes are
-            // classes that allow developers to run/debug karate tests via a UI
-            // and as such are not required for headless runs on jenkins server
-            // but can run happily via IDE of the developer without needed to be
-            // compiled by gradle.
-            srcDir file('src/test/java')
-            exclude '**/*UiRunner*.java'
+            srcDirs = ['src/karate/java']
         }
         resources {
-            // Using recommended karate project layout where karate feature files
-            // and associated javascript resources sit in same /test/java folders
-            // as their java counterparts.
-            srcDir file('src/test/java')
+            srcDirs = ['src/karate/java']
             exclude '**/*.java'
         }
     }
+
+}
+
+configurations {
+    karateImplementation.extendsFrom testImplementation
 }
 
 dependencies {
@@ -45,7 +40,7 @@ dependencies {
     implementation 'com.h2database:h2:2.1.214'
     runtimeOnly 'org.postgresql:postgresql'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation "io.karatelabs:karate-core:${karateVersion}"
+    karateImplementation "io.karatelabs:karate-core:${karateVersion}"
     testImplementation 'org.mockito:mockito-core'
 }
 
@@ -56,8 +51,19 @@ test {
         junitXml.required.set(true)
         html.required.set(true)
     }
-    // Exclude Karate test runner
-    exclude '**/user/TestRunParallel.class'
+    outputs.upToDateWhen { false }
+}
+
+tasks.register('karateTest', Test) {
+    description = 'Runs the Karate tests.'
+    group = 'verification'
+    testClassesDirs = sourceSets.karate.output.classesDirs
+    classpath = sourceSets.karate.runtimeClasspath
+    useJUnitPlatform()
+    reports {
+        junitXml.required.set(true)
+        html.required.set(true)
+    }
     // pull karate options into the runtime
     systemProperty "karate.options", System.properties.getProperty("karate.options")
     // pull karate env into the runtime

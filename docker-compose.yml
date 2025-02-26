@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   java-app:
     container_name: java-app
@@ -55,8 +53,10 @@ services:
     depends_on:
       java-app:
         condition: service_healthy
-    command: ["java", "-jar", "karate.jar", "src/test/java"]  # run all tests in java folder
-#    command: ["java", "-jar", "karate.jar", "src/test/java/user/user.feature"]  # Run particular feature file
+#    Run Karate tests and then list the contents of the karate-reports directory
+    command: ["/bin/sh", "-c", "java -jar karate.jar src/karate/java && ls -la /target/karate-reports"]
+#    command: ["java", "-jar", "karate.jar", "src/karate/java"]  # run all tests in java folder
+#    command: ["java", "-jar", "karate.jar", "src/karate/java/user/user.feature"]  # Run particular feature file
 
 volumes:
   pgdata: {}
