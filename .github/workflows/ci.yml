@@ -10,7 +10,8 @@ on:
 
 jobs:
   build-and-test:
-    runs-on: ubuntu-latest
+#    runs-on: ubuntu-latest # Running on ubuntu-latest (GitHub-hosted runner)
+    runs-on: self-hosted  # Running on self hosted runner (Azure VM)
     defaults:
       run:
         shell: bash
@@ -19,48 +20,24 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v2
+        # Install Java on the self-hosted runner (Not needed for github-hosted runner)
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Install Docker and docker-compose on the self-hosted runner (Not needed for github-hosted runner)
+      - name: Install Docker and docker-compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker.io docker-compose
 
       - name: Run docker compose
-        uses: hoverkraft-tech/compose-action@v2.0.1
-        with:
-          compose-file: "./docker-compose.yml"
-
-#      - name: junit html test directoriy
-#        run: mkdir -p /tmp/junit-html-reports
-#
-#      - name: Cache Docker layers
-#        uses: actions/cache@v3
-#        with:
-#          path: /tmp/.buildx-cache
-#          key: ${{ runner.os }}-buildx-${{ github.sha }}
-#          restore-keys: |
-#            ${{ runner.os }}-buildx-
-#
-#      - name: Build and run Docker Compose
-#        run: |
-#          docker-compose up -d --build
-#        env:
-#         PWD: ${{ github.workspace }}  #set the PWD environment variable to the GitHub workspace directory
-
-      - name: Collect and print logs for all Docker containers
-        run: docker compose logs
+        run: sudo docker-compose -f ./docker-compose.yml up --abort-on-container-exit  # --abort-on-container-exit flag. This flag will stop all containers if any container was stopped.
 
       - name: Copy the junit html reports from the container to the host
-        run: docker cp java-app:/app/build/reports/tests/test-internal /tmp/junit-html-reports
-
-      - name: Check karate-reports directory and print contents # For debugging purposes
-        run: |
-          if [ -d "./karate-reports" ]; then
-            echo "karate-reports directory exists. Contents:"; ls -la ./karate-reports
-            echo "workspace  directory : $PWD"
-            echo "Absolute path of karate-reports directory:"; realpath ./karate-reports
-          else
-            echo "karate-reports directory does not exist."
-            echo "workspace  directory: $PWD"
-            echo "Absolute path of karate-reports directory:"; realpath ./karate-reports
-          fi
+        run: sudo docker cp java-app:/app/build/reports/tests/test-internal /tmp/junit-html-reports
 
       - name: Archive Karate test reports
         if: always()

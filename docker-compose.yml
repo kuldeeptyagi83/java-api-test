@@ -53,9 +53,7 @@ services:
     depends_on:
       java-app:
         condition: service_healthy
-#    Run Karate tests and then list the contents of the karate-reports directory
-    command: ["/bin/sh", "-c", "java -jar karate.jar src/karate/java && ls -la /target/karate-reports"]
-#    command: ["java", "-jar", "karate.jar", "src/karate/java"]  # run all tests in java folder
+    command: ["java", "-jar", "karate.jar", "src/karate/java"]  # run all tests in java folder
 #    command: ["java", "-jar", "karate.jar", "src/karate/java/user/user.feature"]  # Run particular feature file
 
 volumes:
